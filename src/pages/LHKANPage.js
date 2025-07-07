@@ -4,81 +4,103 @@ import InputField from '../components/InputField';
 import { Pencil, Trash2 } from 'lucide-react';
 
 const LHKANPage = () => {
+  // Key untuk localStorage
+  const LOCAL_STORAGE_KEY = 'criteriaData';
+
   // State untuk form EDIT/TAMBAH KRITERIA
-  const [currentCriteriaId, setCurrentCriteriaId] = useState(null); // Untuk menandai kriteria yang sedang diedit
+  const [currentCriteriaId, setCurrentCriteriaId] = useState(null);
   const [criteriaName, setCriteriaName] = useState('');
-  const [nextCriteriaNo, setNextCriteriaNo] = useState(6); // Mulai dari 6 karena sudah ada 5 kriteria statis
+  const [nextCriteriaNo, setNextCriteriaNo] = useState(1); // Akan dihitung ulang dari data localStorage
 
   // State untuk form EDIT/TAMBAH SUB KRITERIA DAN NILAI
-  const [currentSubCriteriaId, setCurrentSubCriteriaId] = useState(null); // Untuk menandai sub-kriteria yang sedang diedit
-  const [selectedCriteriaForSub, setSelectedCriteriaForSub] = useState(''); // Kriteria yang dipilih untuk ditambahkan sub-nya
+  const [currentSubCriteriaId, setCurrentSubCriteriaId] = useState(null);
+  const [selectedCriteriaForSub, setSelectedCriteriaForSub] = useState('');
   const [subCriteriaName, setSubCriteriaName] = useState('');
   const [subCriteriaValue, setSubCriteriaValue] = useState('');
 
-  const [criteriaData, setCriteriaData] = useState([
-    {
-      id: 'kriteria-1',
-      no: 1,
-      kriteria: 'Harga',
-      subCriteria: [
-        { id: 'harga-1', name: 'Sangat Murah', value: 6 },
-        { id: 'harga-2', name: 'Cukup Murah', value: 4 },
-        { id: 'harga-3', name: 'Mahal', value: 2 },
-      ],
-    },
-    {
-      id: 'kriteria-2',
-      no: 2,
-      kriteria: 'Kualitas',
-      subCriteria: [
-        { id: 'kualitas-1', name: 'Sangat Bagus', value: 6 },
-        { id: 'kualitas-2', name: 'Cukup Bagus', value: 4 },
-        { id: 'kualitas-3', name: 'Kurang Bagus', value: 2 },
-        { id: 'kualitas-4', name: 'Tidak Ada', value: 0 },
-      ],
-    },
-    {
-      id: 'kriteria-3',
-      no: 3,
-      kriteria: 'Garansi',
-      subCriteria: [
-        { id: 'garansi-1', name: 'Jangka Panjang', value: 5 },
-        { id: 'garansi-2', name: 'Jangka Pendek', value: 3 },
-        { id: 'garansi-3', name: 'Tidak Ada', value: 1 },
-      ],
-    },
-    {
-      id: 'kriteria-4',
-      no: 4,
-      kriteria: 'Ketersediaan Barang',
-      subCriteria: [
-        { id: 'ketersediaan-1', name: 'Sangat Lengkap', value: 6 },
-        { id: 'ketersediaan-2', name: 'Cukup Lengkap', value: 4 },
-        { id: 'ketersediaan-3', name: 'Kurang Lengkap', value: 2 },
-      ],
-    },
-    {
-      id: 'kriteria-5',
-      no: 5,
-      kriteria: 'Lama Kredit',
-      subCriteria: [
-        { id: 'kredit-1', name: '2 Bulan', value: 6 },
-        { id: 'kredit-2', name: '1 Bulan', value: 4 },
-        { id: 'kredit-3', name: 'Tidak Ada', value: 2 },
-      ],
-    },
-  ]);
+  // State utama untuk data kriteria
+  // Inisialisasi dengan fungsi untuk mengambil dari localStorage
+  const [criteriaData, setCriteriaData] = useState(() => {
+    try {
+      const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedData) {
+        return JSON.parse(storedData);
+      }
+    } catch (error) {
+      console.error("Failed to parse criteria data from localStorage:", error);
+      // Jika ada error, kembalikan data default
+    }
+    // Data default jika localStorage kosong atau error
+    return [
+      {
+        id: 'kriteria-1',
+        no: 1,
+        kriteria: 'Harga',
+        subCriteria: [
+          { id: 'harga-1', name: 'Sangat Murah', value: 6 },
+          { id: 'harga-2', name: 'Cukup Murah', value: 4 },
+          { id: 'harga-3', name: 'Mahal', value: 2 },
+        ],
+      },
+      {
+        id: 'kriteria-2',
+        no: 2,
+        kriteria: 'Kualitas',
+        subCriteria: [
+          { id: 'kualitas-1', name: 'Sangat Bagus', value: 6 },
+          { id: 'kualitas-2', name: 'Cukup Bagus', value: 4 },
+          { id: 'kualitas-3', name: 'Kurang Bagus', value: 2 },
+          { id: 'kualitas-4', name: 'Tidak Ada', value: 0 },
+        ],
+      },
+      {
+        id: 'kriteria-3',
+        no: 3,
+        kriteria: 'Garansi',
+        subCriteria: [
+          { id: 'garansi-1', name: 'Jangka Panjang', value: 5 },
+          { id: 'garansi-2', name: 'Jangka Pendek', value: 3 },
+          { id: 'garansi-3', name: 'Tidak Ada', value: 1 },
+        ],
+      },
+      {
+        id: 'kriteria-4',
+        no: 4,
+        kriteria: 'Ketersediaan Barang',
+        subCriteria: [
+          { id: 'ketersediaan-1', name: 'Sangat Lengkap', value: 6 },
+          { id: 'ketersediaan-2', name: 'Cukup Lengkap', value: 4 },
+          { id: 'ketersediaan-3', name: 'Kurang Lengkap', value: 2 },
+        ],
+      },
+      {
+        id: 'kriteria-5',
+        no: 5,
+        kriteria: 'Lama Kredit',
+        subCriteria: [
+          { id: 'kredit-1', name: '2 Bulan', value: 6 },
+          { id: 'kredit-2', name: '1 Bulan', value: 4 },
+          { id: 'kredit-3', name: 'Tidak Ada', value: 2 },
+        ],
+      },
+    ];
+  });
 
-  // Efek untuk memperbarui nextCriteriaNo berdasarkan data yang ada
+  // useEffect untuk menyimpan data ke localStorage setiap kali criteriaData berubah
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(criteriaData));
+  }, [criteriaData]); // Dependensi: criteriaData
+
+  // useEffect untuk memperbarui nextCriteriaNo berdasarkan data yang ada
+  // Ini harus dijalankan setelah criteriaData diinisialisasi dari localStorage
   useEffect(() => {
     if (criteriaData.length > 0) {
       const maxNo = Math.max(...criteriaData.map(c => c.no));
       setNextCriteriaNo(maxNo + 1);
     } else {
-      setNextCriteriaNo(1); // Jika tidak ada kriteria sama sekali, mulai dari 1
+      setNextCriteriaNo(1);
     }
-  }, [criteriaData]);
-
+  }, [criteriaData]); // Dependensi: criteriaData, sehingga selalu update nomor berikutnya
 
   // Fungsi untuk menambah atau mengedit Kriteria utama
   const handleSaveCriteria = () => {
@@ -94,19 +116,19 @@ const LHKANPage = () => {
           crit.id === currentCriteriaId ? { ...crit, kriteria: criteriaName } : crit
         )
       );
-      setCurrentCriteriaId(null); // Reset mode edit
+      setCurrentCriteriaId(null);
     } else {
       // Logic untuk TAMBAH Kriteria baru
       const newCriteria = {
-        id: `kriteria-${Date.now()}`, // ID unik
+        id: `kriteria-${Date.now()}`,
         no: nextCriteriaNo,
         kriteria: criteriaName,
-        subCriteria: [], // Kriteria baru dimulai tanpa sub-kriteria
+        subCriteria: [],
       };
       setCriteriaData(prevData => [...prevData, newCriteria]);
-      setNextCriteriaNo(prevNo => prevNo + 1); // Tambah nomor kriteria berikutnya
+      // nextCriteriaNo akan otomatis diupdate oleh useEffect
     }
-    setCriteriaName(''); // Bersihkan field input
+    setCriteriaName('');
   };
 
   // Fungsi untuk mengisi form edit kriteria
@@ -153,7 +175,7 @@ const LHKANPage = () => {
           return crit;
         })
       );
-      setCurrentSubCriteriaId(null); // Reset mode edit sub-kriteria
+      setCurrentSubCriteriaId(null);
     } else {
       // Logic untuk TAMBAH Sub Kriteria baru
       setCriteriaData(prevData =>
@@ -201,11 +223,10 @@ const LHKANPage = () => {
             };
           }
           return criteria;
-        }).filter(criteria => criteria.subCriteria.length > 0) // Hapus kriteria jika tidak ada sub-kriteria tersisa
+        }).filter(criteria => criteria.subCriteria.length > 0)
       );
     }
   };
-
 
   return (
     <div className="p-6">
@@ -230,7 +251,10 @@ const LHKANPage = () => {
                 {currentCriteriaId ? 'Simpan Perubahan Kriteria' : 'Tambah Kriteria'}
               </Button>
               {currentCriteriaId && (
-                <Button variant="secondary" onClick={() => setCurrentCriteriaId(null) || setCriteriaName('')}>
+                <Button variant="secondary" onClick={() => {
+                  setCurrentCriteriaId(null);
+                  setCriteriaName('');
+                }}>
                   Batal Edit
                 </Button>
               )}
@@ -252,7 +276,7 @@ const LHKANPage = () => {
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
               value={selectedCriteriaForSub}
               onChange={(e) => setSelectedCriteriaForSub(e.target.value)}
-              disabled={!!currentSubCriteriaId} // Disable jika sedang mengedit sub-kriteria
+              disabled={!!currentSubCriteriaId}
             >
               <option value="">-- Pilih Kriteria --</option>
               {criteriaData.map((criteria) => (
@@ -283,7 +307,12 @@ const LHKANPage = () => {
               {currentSubCriteriaId ? 'Simpan Perubahan Sub Kriteria' : 'Tambah Sub Kriteria'}
             </Button>
             {currentSubCriteriaId && (
-              <Button variant="secondary" onClick={() => setCurrentSubCriteriaId(null) || setSelectedCriteriaForSub('') || setSubCriteriaName('') || setSubCriteriaValue('')}>
+              <Button variant="secondary" onClick={() => {
+                setCurrentSubCriteriaId(null);
+                setSelectedCriteriaForSub('');
+                setSubCriteriaName('');
+                setSubCriteriaValue('');
+              }}>
                 Batal Edit
               </Button>
             )}
@@ -301,8 +330,8 @@ const LHKANPage = () => {
                 <th rowSpan="2" className="py-2 px-4 border border-gray-400 text-left text-sm font-semibold w-10">NO</th>
                 <th rowSpan="2" className="py-2 px-4 border border-gray-400 text-left text-sm font-semibold w-1/4">KRITERIA</th>
                 <th colSpan="2" className="py-2 px-4 border border-gray-400 text-center text-sm font-semibold w-1/2">NILAI</th>
-                <th rowSpan="2" className="py-2 px-4 border border-gray-400 text-center text-sm font-semibold w-24">AKSI KRITERIA</th> {/* Aksi untuk kriteria utama */}
-                <th rowSpan="2" className="py-2 px-4 border border-gray-400 text-center text-sm font-semibold w-24">AKSI SUB</th> {/* Aksi untuk sub-kriteria */}
+                <th rowSpan="2" className="py-2 px-4 border border-gray-400 text-center text-sm font-semibold w-24">AKSI KRITERIA</th>
+                <th rowSpan="2" className="py-2 px-4 border border-gray-400 text-center text-sm font-semibold w-24">AKSI SUB</th>
               </tr>
               <tr className="bg-gray-200">
                 <th className="py-2 px-4 border border-gray-400 text-left text-sm font-semibold">SUB KRITERIA</th>
@@ -315,7 +344,7 @@ const LHKANPage = () => {
                   <td colSpan="6" className="py-4 text-center text-gray-500">Belum ada data kriteria.</td>
                 </tr>
               ) : (
-                criteriaData.map((criteria, criteriaIndex) => (
+                criteriaData.map((criteria) => (
                   criteria.subCriteria.length === 0 ? (
                     <tr key={criteria.id} className="border-b border-gray-200 hover:bg-gray-100">
                       <td className="py-2 px-4 border border-gray-400 align-top text-sm text-center">{criteria.no}</td>
@@ -338,7 +367,7 @@ const LHKANPage = () => {
                   ) : (
                     criteria.subCriteria.map((sub, subIndex) => (
                       <tr key={`${criteria.id}-${sub.id}`} className="border-b border-gray-200 hover:bg-gray-100">
-                        {subIndex === 0 && ( // Render NO, KRITERIA, dan aksi kriteria hanya di baris pertama sub-kriteria
+                        {subIndex === 0 && (
                           <>
                             <td rowSpan={criteria.subCriteria.length} className="py-2 px-4 border border-gray-400 align-top text-sm text-center">
                               {criteria.no}
@@ -350,7 +379,7 @@ const LHKANPage = () => {
                         )}
                         <td className="py-2 px-4 border border-gray-400 text-sm">{sub.name}</td>
                         <td className="py-2 px-4 border border-gray-400 text-sm">{sub.value}</td>
-                        {subIndex === 0 && ( // Aksi untuk kriteria utama
+                        {subIndex === 0 && (
                           <td rowSpan={criteria.subCriteria.length} className="py-3 px-6 border border-gray-400 text-center align-top">
                             <div className="flex items-center justify-center space-x-2">
                               <Button variant="secondary" className="p-2" onClick={() => handleEditCriteria(criteria.id)}>
@@ -362,7 +391,6 @@ const LHKANPage = () => {
                             </div>
                           </td>
                         )}
-                        {/* Tombol ACTION di setiap baris sub-kriteria */}
                         <td className="py-3 px-6 border border-gray-400 text-center">
                           <div className="flex items-center justify-center space-x-2">
                             <Button
