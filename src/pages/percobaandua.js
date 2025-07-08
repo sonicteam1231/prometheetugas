@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'; // Import useEffect
-import Button from './components/Button';
-import InputField from './components/InputField';
+import React, { useState, useEffect } from 'react';
+import Button from '../components/Button';
+import InputField from '../components/InputField';
 import { Pencil, Trash2 } from 'lucide-react';
 
 const PrometheeProses = () => {
@@ -30,18 +30,29 @@ const PrometheeProses = () => {
 
   // --- State untuk Form Tambah Toko ---
   const [namaToko, setNamaToko] = useState('');
+  const [harga, setHarga] = useState('');
   const [kualitas, setKualitas] = useState('');
   const [garansi, setGaransi] = useState('');
   const [ketersediaanBarang, setKetersediaanBarang] = useState('');
   const [lamaKredit, setLamaKredit] = useState('');
 
   // --- State untuk Data Tabel Toko ---
-  // Ini adalah data placeholder, Anda mungkin akan mengambilnya dari API atau localStorage
-  const [daftarToko, setDaftarToko] = useState([
-    { no: 1, nama: 'Jaya Abadi', kualitas: 'Sangat Bagus', garansi: 'Jangka Panjang', ketersediaanBarang: 'Sangat Lengkap', lamaKredit: '2 Bulan', entringFlow: 0.4, leavingFlow: 0.3, netFlow: 0.1 },
-    { no: 2, nama: 'Makmur Sejahtera', kualitas: 'Cukup Bagus', garansi: 'Jangka Pendek', ketersediaanBarang: 'Cukup Lengkap', lamaKredit: '1 Bulan', entringFlow: 0.3, leavingFlow: 0.3, netFlow: 0 },
-    { no: 3, nama: 'Matahari Bersinar', kualitas: 'Kurang Bagus', garansi: 'Tidak Ada', ketersediaanBarang: 'Kurang Lengkap', lamaKredit: 'Tidak Ada', entringFlow: 0.2, leavingFlow: 0.3, netFlow: -0.1 },
-  ]);
+  const [daftarToko, setDaftarToko] = useState(() => {
+    // Muat daftarToko dari localStorage saat inisialisasi
+    try {
+      const storedToko = localStorage.getItem('daftarToko'); // Key baru untuk daftar toko
+      return storedToko ? JSON.parse(storedToko) : [];
+    } catch (error) {
+      console.error("Failed to parse daftarToko from localStorage:", error);
+      return [];
+    }
+  });
+
+  // useEffect untuk menyimpan daftarToko ke localStorage setiap kali berubah
+  useEffect(() => {
+    localStorage.setItem('daftarToko', JSON.stringify(daftarToko));
+  }, [daftarToko]);
+
 
   // --- State untuk Pencarian dan Pagination Tabel ---
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,47 +60,56 @@ const PrometheeProses = () => {
 
   // --- Handler untuk Form Tambah Toko ---
   const handleTambahToko = () => {
-    if (!namaToko || !kualitas || !garansi || !ketersediaanBarang || !lamaKredit) {
+    if (!namaToko || !harga || !kualitas || !garansi || !ketersediaanBarang || !lamaKredit) {
       alert('Semua field harus diisi!');
       return;
     }
 
     // Dapatkan nilai numerik dari sub-kriteria yang dipilih
-    // Ini penting untuk perhitungan Promethee nantinya
     const getNumericValue = (criteriaName, selectedSubCriteriaName) => {
-        const criteria = criteriaData.find(c => c.kriteria === criteriaName);
+        const criteria = criteriaData.find(c => c.kriteria.toLowerCase() === criteriaName.toLowerCase());
         if (criteria) {
             const sub = criteria.subCriteria.find(s => s.name === selectedSubCriteriaName);
-            return sub ? sub.value : 0; // Mengembalikan 0 jika tidak ditemukan
+            return sub ? sub.value : 0;
         }
         return 0;
     };
 
-    const kualitasValue = getNumericValue('Kualitas', kualitas);
-    const garansiValue = getNumericValue('Garansi', garansi);
-    const ketersediaanBarangValue = getNumericValue('Ketersediaan Barang', ketersediaanBarang);
-    const lamaKreditValue = getNumericValue('Lama Kredit', lamaKredit);
-
-    // Anda akan mengintegrasikan perhitungan Promethee di sini atau di backend
-    // Untuk saat ini, kita tetap menggunakan perhitungan dummy untuk Entring/Leaving/Net Flow
-    // Tapi data input kriteria numeriknya sudah bisa diakses (misal kualitasValue)
     const newToko = {
+      id: `toko-${Date.now()}`,
       no: daftarToko.length > 0 ? Math.max(...daftarToko.map(t => t.no)) + 1 : 1,
       nama: namaToko,
-      kualitas: kualitas, // Simpan juga nama sub-kriteria
+      harga: harga,
+      kualitas: kualitas,
       garansi: garansi,
       ketersediaanBarang: ketersediaanBarang,
       lamaKredit: lamaKredit,
-      // Contoh sederhana menggunakan nilai input untuk dummy flow.
-      // Ini akan diganti dengan perhitungan Promethee yang sebenarnya.
+      nilaiKriteria: {}, // Inisialisasi objek nilaiKriteria
+      // Dummy flow values - akan diganti dengan perhitungan Promethee
       entringFlow: (Math.random() * 0.5).toFixed(1),
       leavingFlow: (Math.random() * 0.5).toFixed(1),
       netFlow: ((Math.random() * 0.5) - 0.25).toFixed(1),
     };
+
+    // Mengisi nilaiKriteria secara dinamis
+    criteriaData.forEach(crit => {
+        const keyName = crit.kriteria.toLowerCase().replace(/\s/g, ''); // Buat kunci yang konsisten (semua lowercase, tanpa spasi)
+        let selectedValue;
+        // Sesuaikan dengan nama state form Anda
+        if (crit.kriteria === 'Harga') selectedValue = harga;
+        else if (crit.kriteria === 'Kualitas') selectedValue = kualitas;
+        else if (crit.kriteria === 'Garansi') selectedValue = garansi;
+        else if (crit.kriteria === 'Ketersediaan Barang') selectedValue = ketersediaanBarang;
+        else if (crit.kriteria === 'Lama Kredit') selectedValue = lamaKredit;
+
+        newToko.nilaiKriteria[keyName] = getNumericValue(crit.kriteria, selectedValue);
+    });
+
     setDaftarToko([...daftarToko, newToko]);
 
     // Reset form
     setNamaToko('');
+    setHarga('');
     setKualitas('');
     setGaransi('');
     setKetersediaanBarang('');
@@ -98,15 +118,23 @@ const PrometheeProses = () => {
   };
 
   // --- Handler untuk Edit/Delete Toko (di tabel) ---
-  const handleEditToko = (tokoNo) => {
-    // Logika edit toko, misalnya membuka modal atau mengisi form dengan data toko
-    alert(`Edit Toko No: ${tokoNo}`);
+  const handleEditToko = (tokoId) => {
+    const tokoToEdit = daftarToko.find(toko => toko.id === tokoId);
+    if (tokoToEdit) {
+        setNamaToko(tokoToEdit.nama);
+        setHarga(tokoToEdit.harga);
+        setKualitas(tokoToEdit.kualitas);
+        setGaransi(tokoToEdit.garansi);
+        setKetersediaanBarang(tokoToEdit.ketersediaanBarang);
+        setLamaKredit(tokoToEdit.lamaKredit);
+        alert(`Edit Toko: ${tokoToEdit.nama}`);
+    }
   };
 
-  const handleDeleteToko = (tokoNo) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus toko No: ${tokoNo}?`)) {
-      setDaftarToko(daftarToko.filter(toko => toko.no !== tokoNo));
-      alert(`Toko No: ${tokoNo} berhasil dihapus.`);
+  const handleDeleteToko = (tokoId) => {
+    if (window.confirm(`Apakah Anda yakin ingin menghapus toko ini?`)) {
+      setDaftarToko(daftarToko.filter(toko => toko.id !== tokoId));
+      alert(`Toko berhasil dihapus.`);
     }
   };
 
@@ -115,7 +143,7 @@ const PrometheeProses = () => {
     toko.nama.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginatedToko = filteredToko.slice(0, itemsPerPage); // Contoh sederhana, belum ada tombol prev/next
+  const paginatedToko = filteredToko.slice(0, itemsPerPage);
 
   return (
     <div className="p-6">
@@ -131,6 +159,26 @@ const PrometheeProses = () => {
             onChange={(e) => setNamaToko(e.target.value)}
             placeholder="nama toko"
           />
+
+          {/* Dropdown Harga (diisi dari localStorage) */}
+          <div>
+            <label htmlFor="harga" className="block text-sm font-medium text-gray-700 mb-1">
+              Harga
+            </label>
+            <select
+              id="harga"
+              className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={harga}
+              onChange={(e) => setHarga(e.target.value)}
+            >
+              <option value="">Pilih Harga</option>
+              {getSubCriteriaOptions('Harga').map((sub) => (
+                <option key={sub.id} value={sub.name}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Dropdown Kualitas (diisi dari localStorage) */}
           <div>
@@ -218,7 +266,7 @@ const PrometheeProses = () => {
       </div>
 
       {/* Bagian Tabel Rangking Promethee Toko */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
         <h2 className="text-lg font-semibold text-gray-700 mb-4">Rangking Promethee Toko</h2>
         <div className="flex justify-between items-center mb-4">
           {/* Dropdown Jumlah Item per Halaman */}
@@ -253,7 +301,8 @@ const PrometheeProses = () => {
               <tr className="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
                 <th className="py-3 px-6 text-left">NO</th>
                 <th className="py-3 px-6 text-left">Nama Toko</th>
-                <th className="py-3 px-6 text-left">Kualitas</th> {/* Tambahkan kolom kriteria */}
+                <th className="py-3 px-6 text-left">Harga</th>
+                <th className="py-3 px-6 text-left">Kualitas</th>
                 <th className="py-3 px-6 text-left">Garansi</th>
                 <th className="py-3 px-6 text-left">Ketersediaan Barang</th>
                 <th className="py-3 px-6 text-left">Lama Kredit</th>
@@ -266,16 +315,17 @@ const PrometheeProses = () => {
             <tbody className="text-gray-600 text-sm font-light">
               {paginatedToko.length === 0 ? (
                 <tr>
-                  <td colSpan="10" className="py-4 text-center text-gray-500"> {/* Ubah colspan */}
+                  <td colSpan="11" className="py-4 text-center text-gray-500">
                     Tidak ada data toko yang ditemukan.
                   </td>
                 </tr>
               ) : (
                 paginatedToko.map((toko) => (
-                  <tr key={toko.no} className="border-b border-gray-200 hover:bg-gray-100">
+                  <tr key={toko.id} className="border-b border-gray-200 hover:bg-gray-100">
                     <td className="py-3 px-6 text-left whitespace-nowrap">{toko.no}</td>
                     <td className="py-3 px-6 text-left">{toko.nama}</td>
-                    <td className="py-3 px-6 text-left">{toko.kualitas}</td> {/* Tampilkan nilai kriteria */}
+                    <td className="py-3 px-6 text-left">{toko.harga}</td>
+                    <td className="py-3 px-6 text-left">{toko.kualitas}</td>
                     <td className="py-3 px-6 text-left">{toko.garansi}</td>
                     <td className="py-3 px-6 text-left">{toko.ketersediaanBarang}</td>
                     <td className="py-3 px-6 text-left">{toko.lamaKredit}</td>
@@ -284,10 +334,10 @@ const PrometheeProses = () => {
                     <td className="py-3 px-6 text-left">{toko.netFlow}</td>
                     <td className="py-3 px-6 text-center">
                       <div className="flex item-center justify-center space-x-2">
-                        <Button variant="secondary" className="p-2" onClick={() => handleEditToko(toko.no)}>
+                        <Button variant="secondary" className="p-2" onClick={() => handleEditToko(toko.id)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button variant="danger" className="p-2" onClick={() => handleDeleteToko(toko.no)}>
+                        <Button variant="danger" className="p-2" onClick={() => handleDeleteToko(toko.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -297,6 +347,40 @@ const PrometheeProses = () => {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Bagian Tabel Nilai Kriteria per Toko */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">Tabel Nilai Kriteria dari Toko</h2>
+        <div className="overflow-x-auto">
+          {daftarToko.length === 0 ? (
+            <p className="py-4 text-center text-gray-500">Tidak ada toko yang ditambahkan untuk menampilkan nilai kriteria.</p>
+          ) : (
+            <table className="min-w-full bg-white border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
+                  <th className="py-3 px-6 text-left">Kriteria</th>
+                  {daftarToko.map((toko) => (
+                    <th key={toko.id} className="py-3 px-6 text-left">{toko.nama}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="text-gray-600 text-sm font-light">
+                {criteriaData.map((criteria) => (
+                  <tr key={criteria.id} className="border-b border-gray-200 hover:bg-gray-100">
+                    <td className="py-3 px-6 text-left whitespace-nowrap">{criteria.kriteria}</td>
+                    {daftarToko.map((toko) => (
+                      <td key={`${toko.id}-${criteria.id}`} className="py-3 px-6 text-left">
+                        {/* Mengambil nilai numerik berdasarkan kriteria dan toko */}
+                        {toko.nilaiKriteria && toko.nilaiKriteria[criteria.kriteria.toLowerCase().replace(/\s/g, '')]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

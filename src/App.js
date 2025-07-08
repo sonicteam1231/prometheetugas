@@ -10,7 +10,7 @@ import LHKANPage from './pages/LHKANPage';
 
 import PrometheePage from './pages/PrometheePage';
 
-import PrometheeProses from './PrometheeProses';
+import PrometheeProses from './pages/PrometheeProses';
 
 function App() {
   return (

@@ -33,7 +33,7 @@ const LHKANPage = () => {
     // Data default jika localStorage kosong atau error
     return [
       {
-        id: 'kriteria-1',
+        id: 'k1',
         no: 1,
         kriteria: 'Harga',
         subCriteria: [
@@ -43,7 +43,7 @@ const LHKANPage = () => {
         ],
       },
       {
-        id: 'kriteria-2',
+        id: 'k2',
         no: 2,
         kriteria: 'Kualitas',
         subCriteria: [
@@ -53,7 +53,7 @@ const LHKANPage = () => {
         ],
       },
       {
-        id: 'kriteria-3',
+        id: 'k3',
         no: 3,
         kriteria: 'Garansi',
         subCriteria: [
@@ -63,7 +63,7 @@ const LHKANPage = () => {
         ],
       },
       {
-        id: 'kriteria-4',
+        id: 'k4',
         no: 4,
         kriteria: 'Ketersediaan Barang',
         subCriteria: [
@@ -73,7 +73,7 @@ const LHKANPage = () => {
         ],
       },
       {
-        id: 'kriteria-5',
+        id: 'k5',
         no: 5,
         kriteria: 'Lama Kredit',
         subCriteria: [
