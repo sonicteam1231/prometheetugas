@@ -9,9 +9,10 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: 'Dashboard', icon: <Home size={32} />, path: '/' },
-    { name: 'Master', icon: <Settings size={32} />, path: '/masteraccount' },
-    { name: 'LHKAN', icon: <FileText size={32} />, path: '/lhkan' },
-    { name: 'LHKPN', icon: <FileText size={32} />, path: '/laporan' }, // Menggunakan FileText lagi untuk konsistensi
+    
+    { name: 'Master', icon: <Settings size={32} />, path: '/lhkan' },
+    { name: 'Ranking', icon: <FileText size={32} />, path: '/promethee' },
+    { name: 'Laporan', icon: <FileText size={32} />, path: '/laporan' }, // Menggunakan FileText lagi untuk konsistensi
     { name: 'Logout', icon: <LogOut size={32} />, path: '/login' },
   ];
 

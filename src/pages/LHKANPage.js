@@ -50,7 +50,6 @@ const LHKANPage = () => {
           { id: 'kualitas-1', name: 'Sangat Bagus', value: 6 },
           { id: 'kualitas-2', name: 'Cukup Bagus', value: 4 },
           { id: 'kualitas-3', name: 'Kurang Bagus', value: 2 },
-          { id: 'kualitas-4', name: 'Tidak Ada', value: 0 },
         ],
       },
       {

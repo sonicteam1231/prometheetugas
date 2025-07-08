@@ -7,7 +7,10 @@ import LHKANPage from './pages/LHKANPage';
 //  // This is the page from your screenshot
 // import LHKPNPage from './pages/LHKPNPage';
 // import MasterPage from './pages/MasterPage';
-import LaporanPage from './pages/LaporanPage';
+
+import PrometheePage from './pages/PrometheePage';
+
+import PrometheeProses from './PrometheeProses';
 
 function App() {
   return (
@@ -20,11 +23,9 @@ function App() {
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/lhkan" element={<LHKANPage />} />
-              {/* 
-              <Route path="/lhk-pn" element={<LHKPNPage />} />
-              <Route path="/master" element={<MasterPage />} /> */}
-              <Route path="/laporan" element={<LaporanPage />} />
-              {/* Add other routes as needed */}
+               <Route path="/promethee" element={<PrometheePage />} /> 
+              <Route path="/laporan" element={<PrometheeProses />} />
+             
             </Routes>
           </main>
         </div>
